@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Project Rules
+    match /projects/{projectId} {
+      function isValidProject(data) {
+        return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+            && data.campaignType in ['poster', 'banner', 'social_media', 'event', 'promo']
+            && data.userId == request.auth.uid;
+      }
+
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(projectId) && isValidProject(incoming());
+      allow update: if isSignedIn() && isValidProject(incoming()) 
+                     && incoming().userId == existing().userId
+                     && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'campaignType', 'brandDetails', 'visualStyle', 'updatedAt']);
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+
+      // Assets Rules
+      match /assets/{assetId} {
+        function isValidAsset(data) {
+          return data.projectId == projectId && data.url is string && data.name is string;
+        }
+        
+        allow read: if isSignedIn() && get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+        allow create: if isSignedIn() && isValidId(assetId) && isValidAsset(incoming())
+                       && get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+        allow delete: if isSignedIn() && get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+      }
+
+      // Variations Rules
+      match /variations/{variationId} {
+        function isValidVariation(data) {
+          return data.projectId == projectId && data.imageUrl is string;
+        }
+
+        allow read: if isSignedIn() && get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+        allow create: if isSignedIn() && isValidId(variationId) && isValidVariation(incoming())
+                       && get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+        allow delete: if isSignedIn() && get(/databases/$(database)/documents/projects/$(projectId)).data.userId == request.auth.uid;
+      }
+    }
+  }
+}

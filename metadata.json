@@ -1,0 +1,6 @@
+{
+  "name": "Visual Campaign Generator",
+  "description": "An AI-powered creative studio for generating promotional visuals, posters, banners, and social media assets for creators and small teams.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

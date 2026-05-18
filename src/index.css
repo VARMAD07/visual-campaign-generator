@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", "Georgia", serif;
+  --font-display: "Clash Display", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-[#F3F2EE] text-[#1A1A1A] font-sans h-full;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight leading-none;
+  }
+}
+
+@layer components {
+  .studio-card {
+    @apply bg-white border border-[#D1D1CF] shadow-xl overflow-hidden transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-[#1A1A1A] text-white font-serif italic font-medium transition-all hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest text-xs;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-white border border-[#1A1A1A] text-[#1A1A1A] font-serif italic font-medium transition-all hover:bg-neutral-50 disabled:opacity-50 uppercase tracking-widest text-xs;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-white border border-[#E5E5E3] focus:outline-none focus:border-black transition-all text-sm placeholder:text-[#BBB];
+  }
+
+  .editorial-label {
+    @apply text-[10px] font-bold uppercase tracking-[0.2em] text-[#888] mb-2 block;
+  }
+}
